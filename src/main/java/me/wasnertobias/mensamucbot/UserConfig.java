@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 class UserConfig {
-    private long chatID;
+    private long chatId;
 
     private ArrayList<String> configKeys = new ArrayList<>();
     private ArrayList<String> configValues = new ArrayList<>();
 
-    UserConfig(long chatID) {
-        this.chatID = chatID;
+    UserConfig(long chatId) {
+        this.chatId = chatId;
     }
 
-    long getChatID() {
-        return chatID;
+    long getChatId() {
+        return chatId;
     }
 
     private void encodeUserConfig(StringBuilder sb) {
-        sb.append(chatID);
+        sb.append(chatId);
         sb.append(";");
 
         for (int i = 0; i < configKeys.size(); i++) {
@@ -43,7 +43,7 @@ class UserConfig {
         int index = configKeys.indexOf(key);
 
         if (index < 0) {
-            return null;
+            return "";
         }
 
         return configValues.get(index);

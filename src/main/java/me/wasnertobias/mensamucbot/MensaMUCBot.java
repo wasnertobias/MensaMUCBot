@@ -1,11 +1,14 @@
 package me.wasnertobias.mensamucbot;
 
+import me.wasnertobias.mensamucbot.menu.Allergen;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
@@ -72,66 +75,125 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             System.out.println(update.getMessage().getChatId() + ": " + update.getMessage().getText());
 
-            if (update.getMessage().getText().equals("/stop")) {
-                UserConfig userConfig = getUserConfig(update.getMessage().getChatId());
+            UserConfig userConfig = getUserConfig(update.getMessage().getChatId());
 
-                if (userConfig != null) {
-                    removeUserConfig(userConfig);
-                }
-
-                sendBareMessage(update.getMessage().getChatId(), "Sorry, but what have I done wrong? I will shut up now. :(");
+            if (userConfig == null) {
+                userConfig = createUserConfig(update.getMessage().getChatId());
+                sendBareMessage(userConfig.getChatId(), "Welcome! To stop at any time you may want to use the command /stop. All your data incl. preferences will be deleted instantly.");
+                navigateToMainMenu(userConfig);
                 return;
             }
 
-            if (update.getMessage().getText().equals("/start")) {
-                UserConfig userConfig = getUserConfig(update.getMessage().getChatId());
+            if (update.getMessage().getText().equalsIgnoreCase("/stop")) {
+                removeUserConfig(userConfig);
+                sendBareMessage(userConfig.getChatId(), "Sorry, but what have I done wrong? I will shut up now. :(");
+                return;
+            }
 
-                if (userConfig != null) {
-                    removeUserConfig(userConfig);
-                }
+            if (update.getMessage().getText().equalsIgnoreCase("/start")) {
+                navigateToMainMenu(userConfig);
+                return;
+            }
 
-                StringBuilder sb = new StringBuilder("*Please choose a canteen* (not all are supported yet)\n\n");
+            if (update.getMessage().getText().equalsIgnoreCase("/help")) {
+                sendBareMessage(userConfig.getChatId(), "Use the keyboard to navigate through the menu. Type / in the chat to see which commands are available.");
+                return;
+            }
 
-                for (int i = 0; i < Main.canteens.length; i++) {
-                    sb.append("/choose").append(i + 1).append(" ").append(Main.canteens[i]).append('\n');
-                }
+            if (update.getMessage().getText().equalsIgnoreCase("/settings")) {
+                navigateToSettingsMenu(userConfig);
+                return;
+            }
 
-                sendBareMessage(update.getMessage().getChatId(), sb.toString());
-
-                if (userConfig == null) {
-                    sendBareMessage(update.getMessage().getChatId(), "Welcome human. If you find any bugs please refer to my master @wasnertob24.");
-                }
-            } else if (update.getMessage().getText().startsWith("/choose")) {
-                int temp;
-                try {
-                    temp = Integer.parseInt(update.getMessage().getText().substring(7));
-                } catch (NumberFormatException e) {
-                    sendBareMessage(update.getMessage().getChatId(), "Please directly click at the command.");
+            if (update.getMessage().getText().startsWith("/")) {
+                if (update.getMessage().getChatId() == adminChatID) {
+                    Main.notifyAdminUrgently(Main.processAdminInput(update.getMessage().getText()));
                     return;
                 }
-                temp--;
-
-                if (temp >= 0 && temp < Main.canteens.length) {
-                    if (Main.urls[temp].length() == 0) {
-                        sendBareMessage(update.getMessage().getChatId(), "Sorry, due to technical reasons this one isn't (yet) supported. You may want to choose another one?");
-                        return;
-                    }
-
-                    createUserConfig(update.getMessage().getChatId()).setUserConfig("mensaID", temp + "");
-                    saveUserConfigs();
-
-                    if (Main.cache[temp] != null) {
-                        sendBareMessage(update.getMessage().getChatId(), Main.cache[temp]);
-                    }
-
-                    sendBareMessage(update.getMessage().getChatId(), "Alright, you will get notified daily at 10:30 a.m.! To stop simply use /stop.");
-                }
-            } else if (update.getMessage().getChatId() == adminChatID) {
-                Main.notifyAdminUrgently(Main.processAdminInput(update.getMessage().getText()));
-            } else {
-                sendBareMessage(update.getMessage().getChatId(), "Sorry, I can't understand you. If you want to choose another canteen simply use the command /start.");
             }
+
+            String[] status = userConfig.getUserConfig("status").split("|");
+
+            if (status.length > 0) {
+
+                switch (status[0]) {
+                    case "start":
+
+                        return;
+                    case "today":
+
+                        return;
+                    case "subscriptions":
+
+                        return;
+                    case "settings":
+
+                        return;
+                }
+            }
+
+
+            sendBareMessage(update.getMessage().getChatId(), "Sorry, I can't understand you. To get back to the main menu use /start.");
         }
+    }
+
+    void sendLocationMenu(UserConfig userConfig) {
+        // TODO!
+        ArrayList<KeyboardRow> rows = new ArrayList<>();
+
+        KeyboardRow row = new KeyboardRow();
+        row.add("Allergies >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Eating habits >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("< Back");
+        rows.add(row);
+
+        userConfig.setUserConfig("status", "settings");
+        sendBareMessage(userConfig.getChatId(), "Where?", false, rows);
+    }
+
+    void navigateToSettingsMenu(UserConfig userConfig) {
+        ArrayList<KeyboardRow> rows = new ArrayList<>();
+
+        KeyboardRow row = new KeyboardRow();
+        row.add("Allergies >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Eating habits >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("< Back");
+        rows.add(row);
+
+        userConfig.setUserConfig("status", "settings");
+        sendBareMessage(userConfig.getChatId(), "What do you want to set?", false, rows);
+    }
+
+    void navigateToMainMenu(UserConfig userConfig) {
+        ArrayList<KeyboardRow> rows = new ArrayList<>();
+
+        KeyboardRow row = new KeyboardRow();
+        row.add("Today >");
+        row.add("Tomorrow >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Subscriptions >");
+        rows.add(row);
+
+        row = new KeyboardRow();
+        row.add("Settings >");
+        rows.add(row);
+
+        userConfig.setUserConfig("status", "start");
+        sendBareMessage(userConfig.getChatId(), "What do you want to do?", false, rows);
     }
 
     int userConfigSize() {
@@ -149,6 +211,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
         if (userConfig == null) {
             userConfig = new UserConfig(chatID);
+            userConfig.setUserConfig("status", "start");
             userConfigs.add(userConfig);
             System.out.println("[Info] I got a new user! " + userConfigs.size() + " in total now. :)");
         }
@@ -158,7 +221,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
     private UserConfig getUserConfig(long chatID) {
         for (UserConfig userConfig : userConfigs) {
-            if (userConfig.getChatID() == chatID) {
+            if (userConfig.getChatId() == chatID) {
                 return userConfig;
             }
         }
@@ -167,19 +230,26 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
     void notifyAdmin(String msg) {
         if (adminChatID != -1) {
-            sendBareMessage(adminChatID, msg, false);
+            sendBareMessage(adminChatID, msg, false, null);
         }
     }
 
     void sendBareMessage(long chatID, String msg) {
-        sendBareMessage(chatID, msg, true);
+        sendBareMessage(chatID, msg, true, null);
     }
 
-    void sendBareMessage(long chatID, String msg, boolean enableMarkdown) {
+    void sendBareMessage(long chatID, String msg, boolean enableMarkdown, List<KeyboardRow> keyboardRows) {
         SendMessage message = new SendMessage()
                 .setChatId(chatID)
                 .setText(msg)
                 .enableMarkdown(enableMarkdown);
+
+        if (keyboardRows != null) {
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+            replyKeyboardMarkup.setKeyboard(keyboardRows);
+            message.setReplyMarkup(replyKeyboardMarkup);
+        }
+
         try {
             executeAsync(message, new SentCallback<Message>() {
                 @Override
@@ -202,17 +272,82 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         }
     }
 
-    String sendNotifications() {
+    public void sendNotifications(int currentTimeId, int currentDayId) {
         for (UserConfig userConfig : userConfigs) {
-            String msg = Main.cache[Integer.parseInt(userConfig.getUserConfig("mensaID"))];
-            if (msg != null) {
-                sendBareMessage(userConfig.getChatID(), msg);
+            String[] subscriptions = userConfig.getUserConfig("subscriptions").split("|");
+
+            for (String subscription1 : subscriptions) {
+                String[] subscription = subscription1.split(",");
+                int timeId = Integer.parseInt(subscription[0]);
+                int dayId = Integer.parseInt(subscription[1]);
+
+                if (timeId == currentTimeId && dayId == currentDayId) {
+                    int canteenId = Integer.parseInt(subscription[2]);
+                    notifyUser(userConfig, canteenId, false);
+                }
             }
         }
 
-        sendSlackNotification();
+        if (currentTimeId == 12) {
+            sendSlackNotification();
+        }
+    }
 
-        return "[Info] Mahlzeit!";
+    private void notifyUser(UserConfig userConfig, int canteenId, boolean isTomorrow) {
+        sendBareMessage(userConfig.getChatId(), Main.getUserNotification(getAllergies(userConfig), getEatingHabit(userConfig), isTomorrow, canteenId));
+    }
+
+    private EatingHabit getEatingHabit(UserConfig userConfig) {
+        String eatingHabit = userConfig.getUserConfig("eatinghabit");
+
+        switch (eatingHabit) {
+            case "vegan":
+                return EatingHabit.VEGAN;
+            case "vegeterian":
+                return EatingHabit.VEGETARIAN;
+            case "pig":
+                return EatingHabit.PIG;
+            default:
+                return EatingHabit.NONE;
+        }
+    }
+
+    private ArrayList<Allergen> getAllergies(UserConfig userConfig) {
+        ArrayList<Allergen> allergens = new ArrayList<>();
+        String[] allergies = userConfig.getUserConfig("allergies").split("|");
+
+        for (String allergen : allergies) {
+            allergens.add(Allergen.valueOf(allergen));
+        }
+
+        return allergens;
+    }
+
+    private void addAllergen(UserConfig userConfig, Allergen allergen) {
+        ArrayList<Allergen> allergens = getAllergies(userConfig);
+        allergens.add(allergen);
+        saveAllergies(userConfig, allergens);
+    }
+
+    private void removeAllergen(UserConfig userConfig, Allergen allergen) {
+        ArrayList<Allergen> allergens = getAllergies(userConfig);
+        allergens.remove(allergen);
+        saveAllergies(userConfig, allergens);
+    }
+
+    private void saveAllergies(UserConfig userConfig, ArrayList<Allergen> allergies) {
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+
+        for (Allergen allergen : allergies) {
+            if (!isFirst) {
+                sb.append("|");
+            }
+            sb.append(allergen.toString());
+            isFirst = false;
+        }
+
+        userConfig.setUserConfig("allergies", sb.toString());
     }
 
     String sendSlackNotification() {
@@ -223,7 +358,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         try {
             Connection connection = Jsoup.connect("https://hooks.slack.com/services/" + slackSecret)
                     .header("Content-type", "application/json")
-                    .requestBody("{\"text\":\"" + Main.cache[1] + "\"}")
+                    .requestBody("{\"text\":\"" + Main.getSlackText() + "\"}")
                     .method(Connection.Method.POST);
             Connection.Response response = connection.execute();
 
@@ -238,7 +373,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
     String sendBroadcast(String broadcast) {
         for (UserConfig userConfig : userConfigs) {
-            sendBareMessage(userConfig.getChatID(), broadcast);
+            sendBareMessage(userConfig.getChatId(), broadcast);
         }
         return "[Info] Sent broadcast: " + broadcast;
     }
