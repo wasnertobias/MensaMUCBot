@@ -64,30 +64,34 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
     void saveUserConfigs() {
         if (timeoutThread == null) {
-            timeoutThread = timeoutThread(10000);
+            timeoutThread = timeoutSaveThread(10000);
             timeoutThread.start();
         }
     }
 
     private static Thread timeoutThread = null;
 
-    private static Thread timeoutThread(int delay) {
+    private static Thread timeoutSaveThread(int delay) {
         return new Thread(() -> {
             try {
                 Thread.sleep(delay);
                 timeoutThread = null;
 
-                try {
-                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(userDatFile));
-                    bufferedWriter.write(UserConfig.encodeUserConfigs(userConfigs));
-                    bufferedWriter.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                saveUserConfigsInstantly();
             } catch (Exception e) {
                 System.out.println("[Error] " + e);
             }
         });
+    }
+
+    public static void saveUserConfigsInstantly() {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(userDatFile));
+            bufferedWriter.write(UserConfig.encodeUserConfigs(userConfigs));
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onUpdateReceived(Update update) {
@@ -240,6 +244,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                             Canteen result3 = delegateToLocationMenu(userConfig, update.getMessage().getText(), (status.length > 1 ? status[1] : null));
                             if (result3 != null) {
                                 userConfig.setUserConfig("status", userConfig.getUserConfig("status") + "/" + result3.getUrlId());
+                                saveUserConfigs();
                                 sendWeekDayMenu(userConfig, result3.getUrlId());
                             }
                         }
@@ -767,23 +772,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                 return EatingHabit.PIG;
             default:
                 return EatingHabit.NONE;
-        }
-    }
-
-    private void setEatingHabit(UserConfig userConfig, EatingHabit eatingHabit) {
-        switch (eatingHabit) {
-            case NONE:
-                userConfig.setUserConfig("eatinghabit", "");
-                break;
-            case VEGAN:
-                userConfig.setUserConfig("eatinghabit", "vegan");
-                break;
-            case VEGETARIAN:
-                userConfig.setUserConfig("eatinghabit", "vegetarian");
-                break;
-            case PIG:
-                userConfig.setUserConfig("eatinghabit", "pig");
-                break;
         }
     }
 

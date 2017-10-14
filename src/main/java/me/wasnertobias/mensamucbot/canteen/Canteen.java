@@ -121,7 +121,7 @@ public class Canteen {
             }
         }
 
-        return new MenuItem(menuType, menuText, eatingHabit, allergens);
+        return new MenuItem(menuType, menuText.replace(" (GQB)", ""), eatingHabit, allergens);
     }
 
     private String getURL(Calendar calendar) {

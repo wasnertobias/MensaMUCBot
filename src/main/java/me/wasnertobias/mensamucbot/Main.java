@@ -216,7 +216,7 @@ public class Main {
             return mensaMUCBot.sendBroadcast(string.substring(11));
         }
         if (string.toLowerCase().startsWith("/save")) {
-            mensaMUCBot.saveUserConfigs();
+            MensaMUCBot.saveUserConfigsInstantly();
         }
         if (string.toLowerCase().startsWith("/count")) {
             return "[Info] Current count of users: " + mensaMUCBot.userConfigSize();
