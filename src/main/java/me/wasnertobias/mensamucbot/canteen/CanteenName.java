@@ -11,4 +11,8 @@ public class CanteenName {
         }
         return "";
     }
+
+    public static String getCanteenName(Canteen canteen) {
+        return getCanteenName(canteen.getType(), canteen.getLocation());
+    }
 }

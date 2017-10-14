@@ -33,30 +33,30 @@ public class AllergenName {
         shortToAllergen.put("sw", Allergen.SW);
         shortToAllergen.put("wt", Allergen.WT);
 
-        allergenToString.put(Allergen.EI, "Hühnerei");
-        allergenToString.put(Allergen.EN, "Erdnuss");
-        allergenToString.put(Allergen.FI, "Fisch");
-        allergenToString.put(Allergen.GL, "Glutenhaltiges Getreide");
-        allergenToString.put(Allergen.GLW, "Weizen");
-        allergenToString.put(Allergen.GLR, "Roggen");
-        allergenToString.put(Allergen.GLG, "Gerste");
-        allergenToString.put(Allergen.GLH, "Hafer");
-        allergenToString.put(Allergen.GLD, "Dinkel");
-        allergenToString.put(Allergen.KR, "Krebstiere");
-        allergenToString.put(Allergen.LU, "Lupinen");
-        allergenToString.put(Allergen.MI, "Milch und Laktose");
-        allergenToString.put(Allergen.SC, "Schalenfrüchte");
-        allergenToString.put(Allergen.SCM, "Mandeln");
-        allergenToString.put(Allergen.SCH, "Haselnüsse");
-        allergenToString.put(Allergen.SCW, "Walnüsse");
-        allergenToString.put(Allergen.SCC, "Cashewnüsse");
-        allergenToString.put(Allergen.SCP, "Pistazien");
-        allergenToString.put(Allergen.SE, "Sesamsamen");
-        allergenToString.put(Allergen.SF, "Senf");
-        allergenToString.put(Allergen.SL, "Sellerie");
-        allergenToString.put(Allergen.SO, "Soja");
-        allergenToString.put(Allergen.SW, "Schwefeldioxid und Sulfite");
-        allergenToString.put(Allergen.WT, "Weichtiere");
+        allergenToString.put(Allergen.EI, "eggs");
+        allergenToString.put(Allergen.EN, "peanuts");
+        allergenToString.put(Allergen.FI, "fish");
+        allergenToString.put(Allergen.GL, "cereals containing gluten");
+        allergenToString.put(Allergen.GLW, "wheat");
+        allergenToString.put(Allergen.GLR, "rye");
+        allergenToString.put(Allergen.GLG, "barley");
+        allergenToString.put(Allergen.GLH, "oats");
+        allergenToString.put(Allergen.GLD, "spelt");
+        allergenToString.put(Allergen.KR, "crustaceans");
+        allergenToString.put(Allergen.LU, "lupin");
+        allergenToString.put(Allergen.MI, "milk (including lactose)");
+        allergenToString.put(Allergen.SC, "nuts");
+        allergenToString.put(Allergen.SCM, "almonds");
+        allergenToString.put(Allergen.SCH, "hazelnuts");
+        allergenToString.put(Allergen.SCW, "walnuts");
+        allergenToString.put(Allergen.SCC, "cashew nuts");
+        allergenToString.put(Allergen.SCP, "pistachio nuts");
+        allergenToString.put(Allergen.SE, "sesame seeds");
+        allergenToString.put(Allergen.SF, "mustard");
+        allergenToString.put(Allergen.SL, "celery");
+        allergenToString.put(Allergen.SO, "soybeans");
+        allergenToString.put(Allergen.SW, "sulphur dioxide and sulphites");
+        allergenToString.put(Allergen.WT, "molluscs");
 
     }
 

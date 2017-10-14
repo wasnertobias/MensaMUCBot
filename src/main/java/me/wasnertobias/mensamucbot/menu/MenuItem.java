@@ -25,20 +25,20 @@ public class MenuItem {
         sb.append(" *>* ");
 
         if (!canNotEat.isEmpty()) {
-            sb.append('[');
+            sb.append("_");
         }
         sb.append(menuText);
         if (!canNotEat.isEmpty()) {
-            sb.append("]");
+            sb.append("_");
         }
 
         sb.append(' ');
 
         if (canNotEat.isEmpty()) {
             if (containedEatingHabit.equals(EatingHabit.VEGAN)) {
-                sb.append("__(vegan)__");
+                sb.append("_(vegan)_ ");
             } else if (containedEatingHabit.equals(EatingHabit.VEGETARIAN)) {
-                sb.append("__(v)__");
+                sb.append("_(v)_ ");
             } else if (containedEatingHabit.equals(EatingHabit.PIG_AND_COW)) {
                 sb.append(EmojiParser.parseToUnicode(":pig::cow:"));
             } else if (containedEatingHabit.equals(EatingHabit.PIG)) {
@@ -59,22 +59,6 @@ public class MenuItem {
     }
 
     private String canNotEatString(ArrayList<Allergen> allergicTo, EatingHabit eatingHabit) {
-        if (eatingHabit != null) {
-            if (eatingHabit.equals(EatingHabit.VEGAN) && !containedEatingHabit.equals(EatingHabit.VEGAN)) {
-                return "not vegan";
-            }
-            if (eatingHabit.equals(EatingHabit.VEGETARIAN)) {
-                if (!containedEatingHabit.equals(EatingHabit.VEGETARIAN) && !containedEatingHabit.equals(EatingHabit.VEGAN)) {
-                    return "not vegetarian";
-                }
-            }
-            if (eatingHabit.equals(EatingHabit.PIG)) {
-                if (!containedEatingHabit.equals(EatingHabit.PIG) && !containedEatingHabit.equals(EatingHabit.PIG_AND_COW)) {
-                    return "contains pig";
-                }
-            }
-        }
-
         if (containedAllergens != null && allergicTo != null &&
                 containedAllergens.size() != 0 && allergicTo.size() != 0) {
             StringBuilder sb = new StringBuilder();
@@ -92,10 +76,34 @@ public class MenuItem {
             }
         }
 
+        if (eatingHabit != null) {
+            if (eatingHabit.equals(EatingHabit.VEGAN) && !containedEatingHabit.equals(EatingHabit.VEGAN)) {
+                return "not vegan";
+            }
+            if (eatingHabit.equals(EatingHabit.VEGETARIAN)) {
+                if (!containedEatingHabit.equals(EatingHabit.VEGETARIAN) && !containedEatingHabit.equals(EatingHabit.VEGAN)) {
+                    return "not vegetarian";
+                }
+            }
+            if (eatingHabit.equals(EatingHabit.PIG)) {
+                if (containedEatingHabit.equals(EatingHabit.PIG) || containedEatingHabit.equals(EatingHabit.PIG_AND_COW)) {
+                    return "contains pig";
+                }
+            }
+        }
+
         return "";
     }
 
     public String getMenuType() {
         return menuType;
+    }
+
+    public void setMenuType(String menuType) {
+        this.menuType = menuType;
+    }
+
+    public String getMenuText() {
+        return menuText;
     }
 }

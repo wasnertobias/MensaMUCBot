@@ -58,8 +58,20 @@ public class Canteen {
         }
 
         if (doc != null) {
+            String lastMenuTypeName = "";
             for (Element element : doc.select(".c-schedule__item").first().getElementsByClass("c-schedule__list-item")) {
-                addMenuItem((isTomorrow ? types_tomorrow : types_today), parseLiElement(element));
+                MenuItem menuItem = parseLiElement(element);
+
+                if (menuItem.getMenuType() == null) {
+                    if (lastMenuTypeName.length() == 0) {
+                        Main.notifyAdminUrgently("[Error] MenuTypeName is unknown for first element!");
+                    }
+                    menuItem.setMenuType(lastMenuTypeName);
+                } else {
+                    lastMenuTypeName = menuItem.getMenuType();
+                }
+
+                addMenuItem((isTomorrow ? types_tomorrow : types_today), menuItem);
             }
         } else {
             Main.notifyAdminUrgently("[Error] Could not find menu for " + calendarDay(calendarToBeScraped));
@@ -125,6 +137,11 @@ public class Canteen {
                 return;
             } else if (menuType.getMenuType() != null && item.getMenuType() != null
                     && menuType.getMenuType().equals(item.getMenuType())) {
+                for (MenuItem alreadyAdded : menuType.getItems()) {
+                    if (alreadyAdded.getMenuText().equals(item.getMenuText())) {
+                        return;
+                    }
+                }
                 menuType.addMenuItem(item);
                 return;
             }
@@ -154,6 +171,8 @@ public class Canteen {
                 }
 
                 sb.append("*\n");
+            } else {
+                sb.append("\n\n");
             }
 
             for (MenuItem item : menuType.getItems()) {

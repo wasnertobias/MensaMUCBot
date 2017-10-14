@@ -184,6 +184,10 @@ public class Main {
         }).start();
     }
 
+    public static ArrayList<Canteen> getCanteens() {
+        return canteens;
+    }
+
     public static String getSlackText() {
         for (Canteen canteen : canteens) {
             if (canteen.getType().equals(CanteenType.MENSA) && canteen.getLocation().equals("Garching")) {
@@ -193,10 +197,10 @@ public class Main {
         return "";
     }
 
-    public static String getUserNotification(ArrayList<Allergen> allergies, EatingHabit eatingHabit, boolean isTomorrow, int canteenId) {
+    public static String getUserNotification(ArrayList<Allergen> allergies, EatingHabit eatingHabit, boolean isTomorrow, int canteenId, boolean emojisDisabled) {
         for (Canteen canteen : canteens) {
             if (canteen.getUrlId() == canteenId) {
-                return canteen.getStyledString(true, allergies, eatingHabit, isTomorrow);
+                return canteen.getStyledString(!emojisDisabled, allergies, eatingHabit, isTomorrow);
             }
         }
         return "";
@@ -212,7 +216,7 @@ public class Main {
             return mensaMUCBot.sendBroadcast(string.substring(11));
         }
         if (string.toLowerCase().startsWith("/save")) {
-            return mensaMUCBot.saveUserConfigs();
+            mensaMUCBot.saveUserConfigs();
         }
         if (string.toLowerCase().startsWith("/count")) {
             return "[Info] Current count of users: " + mensaMUCBot.userConfigSize();

@@ -22,7 +22,9 @@ class UserConfig {
         sb.append(";");
 
         for (int i = 0; i < configKeys.size(); i++) {
-            sb.append(configKeys.get(i)).append('=').append(configValues.get(i)).append(';');
+            if (configValues.get(i).length() != 0) {
+                sb.append(configKeys.get(i)).append('=').append(configValues.get(i)).append(';');
+            }
         }
 
         sb.append('\n');
