@@ -217,6 +217,7 @@ public class Main {
         }
         if (string.toLowerCase().startsWith("/save")) {
             MensaMUCBot.saveUserConfigsInstantly();
+            return "[Info] Saved!";
         }
         if (string.toLowerCase().startsWith("/count")) {
             return "[Info] Current count of users: " + mensaMUCBot.userConfigSize();

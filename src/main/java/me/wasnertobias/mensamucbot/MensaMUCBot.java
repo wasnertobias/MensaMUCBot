@@ -145,7 +145,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
             if (status.length > 0) {
                 switch (status[0]) {
-                    case "start":
+                    case "":
                         switch (update.getMessage().getText()) {
                             case "Today >":
                                 userConfig.setUserConfig("status", "today");
@@ -170,14 +170,14 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                     case "today":
                         Canteen result = delegateToLocationMenu(userConfig, update.getMessage().getText(), (status.length > 1 ? status[1] : null));
                         if (result != null) {
-                            sendBareMessage(userConfig.getChatId(), result.getStyledString(!emojiDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), false));
+                            sendBareMessage(userConfig.getChatId(), result.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), false));
                             navigateToMainMenu(userConfig);
                         }
                         return;
                     case "tomorrow":
                         Canteen result2 = delegateToLocationMenu(userConfig, update.getMessage().getText(), (status.length > 1 ? status[1] : null));
                         if (result2 != null) {
-                            sendBareMessage(userConfig.getChatId(), result2.getStyledString(!emojiDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), true));
+                            sendBareMessage(userConfig.getChatId(), result2.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), true));
                             navigateToMainMenu(userConfig);
                         }
                         return;
@@ -210,6 +210,9 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                                 int hour;
                                 try {
                                     hour = Integer.parseInt(update.getMessage().getText());
+                                    if (hour < 7 || hour > 15) {
+                                        throw new NumberFormatException();
+                                    }
                                 } catch (NumberFormatException e) {
                                     sendBareMessage(userConfig.getChatId(), "Sorry, I can't understand you. Simply click on the buttons!");
                                     sendHourMenu(userConfig);
@@ -225,6 +228,9 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                                 int minute;
                                 try {
                                     minute = Integer.parseInt(update.getMessage().getText().split(":")[1]);
+                                    if (minute != 0 && minute != 15 && minute != 30 && minute != 45) {
+                                        throw new NumberFormatException();
+                                    }
                                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
                                     sendBareMessage(userConfig.getChatId(), "Sorry, I can't understand you. Simply click on the buttons!");
                                     sendMinuteMenu(userConfig, Integer.parseInt(userConfig.getUserConfig("status").split("/")[4]));
@@ -263,7 +269,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
                         switch (update.getMessage().getText()) {
                             case "Allergies >":
-                                userConfig.setUserConfig("status", "settings/allergies/0");
+                                userConfig.setUserConfig("status", "settings/allergies");
                                 sendAllergiesMenu(userConfig, null);
                                 saveUserConfigs();
                                 return;
@@ -278,14 +284,14 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                         }
 
                         if (update.getMessage().getText().contains("Emojis")) {
-                            if (emojiDisabled(userConfig)) {
+                            if (areEmojisDisabled(userConfig)) {
                                 userConfig.setUserConfig("emoji_disabled", "");
                             } else {
                                 userConfig.setUserConfig("emoji_disabled", "true");
                             }
 
                             saveUserConfigs();
-                            sendBareMessage(userConfig.getChatId(), "Ok, emojis are now *" + (emojiDisabled(userConfig) ? "disabled" : "enabled") + "*!");
+                            sendBareMessage(userConfig.getChatId(), "Ok, emojis are now *" + (areEmojisDisabled(userConfig) ? "disabled" : "enabled") + "*!");
                             navigateToSettingsMenu(userConfig);
                             return;
                         }
@@ -298,54 +304,55 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         }
     }
 
-    boolean emojiDisabled(UserConfig userConfig) {
+    boolean areEmojisDisabled(UserConfig userConfig) {
         return userConfig.getUserConfig("emoji_disabled").equals("true");
     }
 
     void sendAllergiesMenu(UserConfig userConfig, String reply) {
-        int allergenId = Integer.parseInt(userConfig.getUserConfig("status").split("/")[2]);
+        ArrayList<Allergen> allergies = getAllergies(userConfig);
 
         if (reply == null) {
-            sendBareMessage(userConfig.getChatId(), "Please go through all allergens to achieve best results!");
+            sendBareMessage(userConfig.getChatId(), "Simply click on a button to disable/enable a certain allergen (*scroll* through the buttons).\n\n*Notice: Filtering might not be 100% accurate! This software comes without any warranty of any kind!*");
         } else if (!reply.isEmpty()) {
-            if (reply.contains("Yes, I am allergic!")) {
-                addAllergen(userConfig, Allergen.values()[allergenId]);
-                saveUserConfigs();
-                allergenId++;
-            } else if (reply.contains("No, I am not allergic!")) {
-                removeAllergen(userConfig, Allergen.values()[allergenId]);
-                saveUserConfigs();
-                allergenId++;
-            } else {
+            boolean containedSomething = false;
+
+            for (Allergen allergen : Allergen.values()) {
+                if (reply.contains(AllergenName.getInstance().getAllergenName(allergen))) {
+                    if (allergies.contains(allergen)) {
+                        removeAllergen(userConfig, allergen);
+                        sendBareMessage(userConfig.getChatId(), "You *are not* allergic to " + AllergenName.getInstance().getAllergenName(allergen));
+                        containedSomething = true;
+                        allergies.remove(allergen);
+                        break;
+                    } else {
+                        addAllergen(userConfig, allergen);
+                        sendBareMessage(userConfig.getChatId(), "You *are* allergic to " + AllergenName.getInstance().getAllergenName(allergen));
+                        containedSomething = true;
+                        allergies.add(allergen);
+                        break;
+                    }
+                }
+            }
+
+            if (!containedSomething) {
                 sendBareMessage(userConfig.getChatId(), "Sorry, I can't understand you. Simply click on the buttons!");
-                sendAllergiesMenu(userConfig, "");
-                return;
             }
         }
 
-        if (allergenId >= Allergen.values().length) {
-            sendBareMessage(userConfig.getChatId(), "Your allergies have been saved!\n\n*Notice: Filtering might not be 100% accurate! This software comes without any warranty of any kind!*");
-            navigateToMainMenu(userConfig);
-            return;
-        }
-
         ArrayList<KeyboardRow> rows = new ArrayList<>();
+        KeyboardRow row;
 
-        KeyboardRow row = new KeyboardRow();
-        row.add("Yes, I am allergic! >");
-        rows.add(row);
-
-        row = new KeyboardRow();
-        row.add("No, I am not allergic! >");
-        rows.add(row);
+        for (Allergen allergen : Allergen.values()) {
+            row = new KeyboardRow();
+            row.add((allergies.contains(allergen) ? "✘" : "✔") + "\n" + AllergenName.getInstance().getAllergenName(allergen) + " >");
+            rows.add(row);
+        }
 
         row = new KeyboardRow();
         row.add("< Back");
         rows.add(row);
 
-        sendBareMessage(userConfig.getChatId(), "Are you allergic to " + AllergenName.getInstance().getAllergenName(Allergen.values()[allergenId]) + "?", false, rows);
-        userConfig.setUserConfig("status", "settings/allergies/" + allergenId);
-        saveUserConfigs();
+        sendBareMessage(userConfig.getChatId(), "What are you allergic to?", false, rows);
     }
 
     void sendEatingHabitsMenu(UserConfig userConfig, String reply) {
@@ -365,7 +372,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
             saveUserConfigs();
             sendBareMessage(userConfig.getChatId(), "Alright, your new eating habit is saved."
-                    + (getEatingHabit(userConfig).equals(EatingHabit.NONE) ? "" : "\nNotice: Filtering might not be 100% accurate! This software comes without any warranty of any kind!"));
+                    + (getEatingHabit(userConfig).equals(EatingHabit.NONE) ? "" : "\n\n*Notice: Filtering might not be 100% accurate! This software comes without any warranty of any kind!*"));
             navigateToMainMenu(userConfig);
         } else {
             ArrayList<KeyboardRow> rows = new ArrayList<>();
@@ -625,7 +632,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         rows.add(row);
 
         row = new KeyboardRow();
-        row.add((emojiDisabled(userConfig) ? "✘ " : "✔ ") + "Highlight with Emojis >");
+        row.add((areEmojisDisabled(userConfig) ? "✘\n" : "✔\n") + "Highlight with Emojis >");
         rows.add(row);
 
         row = new KeyboardRow();
@@ -653,7 +660,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         row.add("Settings >");
         rows.add(row);
 
-        userConfig.setUserConfig("status", "start");
+        userConfig.setUserConfig("status", "");
         saveUserConfigs();
         sendBareMessage(userConfig.getChatId(), "What do you want to do?", false, rows);
     }
@@ -673,7 +680,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
         if (userConfig == null) {
             userConfig = new UserConfig(chatID);
-            userConfig.setUserConfig("status", "start");
             userConfigs.add(userConfig);
             System.out.println("[Info] I got a new user! " + userConfigs.size() + " in total now. :)");
             saveUserConfigs();
@@ -756,8 +762,8 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         }
     }
 
-    private void notifyUser(UserConfig userConfig, int canteenId, boolean isTomorrow) {
-        sendBareMessage(userConfig.getChatId(), Main.getUserNotification(getAllergies(userConfig), getEatingHabit(userConfig), isTomorrow, canteenId, emojiDisabled(userConfig)));
+    private void notifyUser(UserConfig userConfig, int canteenUrlId, boolean isTomorrow) {
+        sendBareMessage(userConfig.getChatId(), Main.getUserNotification(getAllergies(userConfig), getEatingHabit(userConfig), isTomorrow, canteenUrlId, areEmojisDisabled(userConfig)));
     }
 
     private EatingHabit getEatingHabit(UserConfig userConfig) {

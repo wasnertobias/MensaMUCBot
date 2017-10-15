@@ -37,10 +37,17 @@ public class Canteen {
     }
 
     public void scrapeNow() {
-        types_tomorrow.clear();
-        types_today.clear();
-        scrapeNow(false);
-        scrapeNow(true);
+        if (types_tomorrow.size() != 0) {
+            types_today.clear();
+            types_today.addAll(types_tomorrow);
+            types_tomorrow.clear();
+            scrapeNow(true);
+        } else {
+            types_tomorrow.clear();
+            types_today.clear();
+            scrapeNow(false);
+            scrapeNow(true);
+        }
     }
 
     private void scrapeNow(boolean isTomorrow) {
