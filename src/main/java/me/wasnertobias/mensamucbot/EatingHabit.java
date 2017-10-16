@@ -7,4 +7,5 @@ public enum EatingHabit {
     PIG,        // Valid habit (= NO pig) [contains PIG]
     COW,        // Invalid habit
     PIG_AND_COW // Invalid habit
+    // TODO: Add pescetarier
 }

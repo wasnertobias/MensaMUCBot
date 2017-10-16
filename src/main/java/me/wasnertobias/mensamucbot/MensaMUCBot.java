@@ -635,6 +635,8 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         row.add((areEmojisDisabled(userConfig) ? "✘\n" : "✔\n") + "Highlight with Emojis >");
         rows.add(row);
 
+        // TODO: Add filtering instead of highlighting option
+
         row = new KeyboardRow();
         row.add("< Back");
         rows.add(row);
@@ -648,6 +650,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         ArrayList<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row = new KeyboardRow();
+        // TODO: Change static naming??
         row.add("Today >");
         row.add("Tomorrow >");
         rows.add(row);
@@ -672,7 +675,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
     private void removeUserConfig(UserConfig userConfig) {
         userConfigs.remove(userConfig);
         saveUserConfigs();
-        System.out.println("[Info] I lost a user! " + userConfigs.size() + " in total now. :(");
+        notifyAdmin("[Info] I lost a user! " + userConfigs.size() + " in total now. :(");
     }
 
     private UserConfig createUserConfig(long chatID) {
@@ -681,7 +684,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         if (userConfig == null) {
             userConfig = new UserConfig(chatID);
             userConfigs.add(userConfig);
-            System.out.println("[Info] I got a new user! " + userConfigs.size() + " in total now. :)");
+            notifyAdmin("[Info] I got a new user! " + userConfigs.size() + " in total now. :)");
             saveUserConfigs();
         }
 

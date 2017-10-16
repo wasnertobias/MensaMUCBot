@@ -165,7 +165,7 @@ public class Main {
     private static void resetNotificationTimer() {
         Calendar notificationCalendar = Calendar.getInstance();
 
-        helpCounter = 1;
+        helpCounter = 0;
 
         notificationCalendar.set(Calendar.HOUR_OF_DAY, 0);
         notificationCalendar.set(Calendar.MINUTE, 15);
@@ -186,8 +186,8 @@ public class Main {
         notificationTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Calendar calendar = Calendar.getInstance();
                 helpCounter++;
+                Calendar calendar = Calendar.getInstance();
 
                 if (isWeekday(calendar) && helpCounter >= 28 && helpCounter <= 63) {
                     mensaMUCBot.sendNotifications(helpCounter, calendar.get(Calendar.DAY_OF_WEEK));
