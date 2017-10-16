@@ -16,7 +16,7 @@ import static me.wasnertobias.mensamucbot.canteen.CanteenType.*;
 public class Main {
     private static ArrayList<Canteen> canteens = new ArrayList<>();
     private static MensaMUCBot mensaMUCBot;
-    private static int helpCounter = 0;
+    private static int helpCounter;
 
     public static void main(String[] args) {
         canteens.add(new Canteen(MENSA, "Arcisstraße", 421));
@@ -165,7 +165,7 @@ public class Main {
     private static void resetNotificationTimer() {
         Calendar notificationCalendar = Calendar.getInstance();
 
-        helpCounter = 0;
+        helpCounter = 1;
 
         notificationCalendar.set(Calendar.HOUR_OF_DAY, 0);
         notificationCalendar.set(Calendar.MINUTE, 15);
@@ -187,9 +187,10 @@ public class Main {
             @Override
             public void run() {
                 Calendar calendar = Calendar.getInstance();
+                helpCounter++;
+
                 if (isWeekday(calendar) && helpCounter >= 28 && helpCounter <= 63) {
                     mensaMUCBot.sendNotifications(helpCounter, calendar.get(Calendar.DAY_OF_WEEK));
-                    helpCounter++;
                 }
             }
         }, notificationCalendar.getTime(), TimeUnit.MINUTES.toMillis(15));

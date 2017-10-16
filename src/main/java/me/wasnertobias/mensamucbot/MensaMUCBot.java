@@ -743,16 +743,20 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
     public void sendNotifications(int currentTimeId, int currentDayId) {
         for (UserConfig userConfig : userConfigs) {
-            String[] subscriptions = userConfig.getUserConfig("subscriptions").split("/");
+            String sub = userConfig.getUserConfig("subscriptions");
 
-            for (String subscription1 : subscriptions) {
-                String[] subscription = subscription1.split(",");
-                int timeId = Integer.parseInt(subscription[0]);
-                int dayId = Integer.parseInt(subscription[1]);
+            if (!sub.isEmpty()) {
+                String[] subscriptions = userConfig.getUserConfig("subscriptions").split("/");
 
-                if (timeId == currentTimeId && dayId == currentDayId) {
-                    int canteenUrlId = Integer.parseInt(subscription[2]);
-                    notifyUser(userConfig, canteenUrlId, false);
+                for (String subscription1 : subscriptions) {
+                    String[] subscription = subscription1.split(",");
+                    int timeId = Integer.parseInt(subscription[0]);
+                    int dayId = Integer.parseInt(subscription[1]);
+
+                    if (timeId == currentTimeId && dayId == currentDayId) {
+                        int canteenUrlId = Integer.parseInt(subscription[2]);
+                        notifyUser(userConfig, canteenUrlId, false);
+                    }
                 }
             }
         }

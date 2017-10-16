@@ -163,7 +163,7 @@ public class Canteen {
         Calendar calendar = getCalendar(isTomorrow);
 
         sb.append(calendarDay(calendar)).append(", ");
-        sb.append(calendar.get(Calendar.DAY_OF_MONTH)).append(".").append(calendar.get(Calendar.MONTH)).append(".").append(calendar.get(Calendar.YEAR));
+        sb.append(calendar.get(Calendar.DAY_OF_MONTH)).append(".").append(calendar.get(Calendar.MONTH) + 1).append(".").append(calendar.get(Calendar.YEAR));
 
         sb.append("*\n");
 
