@@ -757,7 +757,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
             }
         }
 
-        if (currentTimeId == 12) {
+        if (currentTimeId == 42) {
             sendSlackNotification();
         }
     }
@@ -822,7 +822,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         saveUserConfigs();
     }
 
-    String sendSlackNotification() {
+    public String sendSlackNotification() {
         if (slackSecret == null) {
             Main.notifyAdminUrgently("[Error] Slack notification could not be sent, because slackSecret is null!");
         }

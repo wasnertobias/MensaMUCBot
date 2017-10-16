@@ -139,36 +139,12 @@ public class Main {
             public void run() {
                 if (isWeekday(Calendar.getInstance())) {
                     scrapeAll();
+                    resetNotificationTimer();
                 }
-                helpCounter = 0;
             }
         }, scrapeCalendar.getTime(), TimeUnit.HOURS.toMillis(24));
 
-        Calendar notificationCalendar = Calendar.getInstance();
-
-        notificationCalendar.set(Calendar.HOUR_OF_DAY, 7);
-        notificationCalendar.set(Calendar.MINUTE, 0);
-        notificationCalendar.set(Calendar.SECOND, 0);
-        notificationCalendar.set(Calendar.MILLISECOND, 0);
-
-        while (notificationCalendar.getTime().before(Calendar.getInstance().getTime())) {
-            notificationCalendar.setTimeInMillis(notificationCalendar.getTimeInMillis() + 1000 * 60 * 15);
-            helpCounter++;
-        }
-
-        Timer notificationTimer = new Timer();
-
-        notificationTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Calendar calendar = Calendar.getInstance();
-                if (isWeekday(calendar)) {
-                    mensaMUCBot.sendNotifications(helpCounter, calendar.get(Calendar.DAY_OF_WEEK));
-                    helpCounter++;
-                }
-            }
-        }, notificationCalendar.getTime(), TimeUnit.MINUTES.toMicros(15));
-
+        resetNotificationTimer();
         scrapeAll();
 
         new Thread(() -> {
@@ -182,6 +158,41 @@ public class Main {
                 }
             }
         }).start();
+    }
+
+    private static Timer notificationTimer;
+
+    private static void resetNotificationTimer() {
+        Calendar notificationCalendar = Calendar.getInstance();
+
+        helpCounter = 0;
+
+        notificationCalendar.set(Calendar.HOUR_OF_DAY, 0);
+        notificationCalendar.set(Calendar.MINUTE, 15);
+        notificationCalendar.set(Calendar.SECOND, 0);
+        notificationCalendar.set(Calendar.MILLISECOND, 0);
+
+        while (notificationCalendar.getTime().before(Calendar.getInstance().getTime())) {
+            notificationCalendar.setTimeInMillis(notificationCalendar.getTimeInMillis() + 1000 * 60 * 15);
+            helpCounter++;
+        }
+
+        if (notificationTimer != null) {
+            notificationTimer.cancel();
+        }
+
+        notificationTimer = new Timer();
+
+        notificationTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Calendar calendar = Calendar.getInstance();
+                if (isWeekday(calendar) && helpCounter >= 28 && helpCounter <= 63) {
+                    mensaMUCBot.sendNotifications(helpCounter, calendar.get(Calendar.DAY_OF_WEEK));
+                    helpCounter++;
+                }
+            }
+        }, notificationCalendar.getTime(), TimeUnit.MINUTES.toMillis(15));
     }
 
     public static ArrayList<Canteen> getCanteens() {
