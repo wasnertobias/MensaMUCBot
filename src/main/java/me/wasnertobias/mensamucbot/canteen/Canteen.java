@@ -15,8 +15,8 @@ public class Canteen {
     private CanteenType type;
     private String location;
     private int urlId;
-    private ArrayList<MenuType> types_today = new ArrayList<>();
-    private ArrayList<MenuType> types_tomorrow = new ArrayList<>();
+    private ArrayList<MenuType> types_today = null;
+    private ArrayList<MenuType> types_tomorrow = null;
 
     public Canteen(CanteenType type, String location, int urlId) {
         this.type = type;
@@ -37,14 +37,22 @@ public class Canteen {
     }
 
     public void scrapeNow() {
-        if (types_tomorrow.size() != 0) {
+        if (types_tomorrow != null && types_today != null) {
             types_today.clear();
             types_today.addAll(types_tomorrow);
             types_tomorrow.clear();
             scrapeNow(true);
         } else {
-            types_tomorrow.clear();
-            types_today.clear();
+            if (types_tomorrow == null) {
+                types_tomorrow = new ArrayList<>();
+            } else {
+                types_tomorrow.clear();
+            }
+            if (types_today == null) {
+                types_today = new ArrayList<>();
+            } else {
+                types_today.clear();
+            }
             scrapeNow(false);
             scrapeNow(true);
         }
@@ -59,9 +67,7 @@ public class Canteen {
 
         try {
             doc = Jsoup.connect(url).get();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Main.notifyAdminUrgently("[Error] Failed to parse URL: " + e);
+        } catch (IOException ignored) {
         }
 
         if (doc != null) {
@@ -128,7 +134,7 @@ public class Canteen {
             }
         }
 
-        return new MenuItem(menuType, menuText.replace(" (GQB)", ""), eatingHabit, allergens);
+        return new MenuItem(menuType, menuText.replace(" (GQB)", "").replace("(GWB)", ""), eatingHabit, allergens);
     }
 
     private String getURL(Calendar calendar) {
@@ -167,25 +173,30 @@ public class Canteen {
 
         sb.append("*\n");
 
-        for (MenuType menuType : (isTomorrow ? types_tomorrow : types_today)) {
-            if (menuType.getMenuType() != null) {
-                sb.append("\n*").append(menuType.getMenuType());
+        if ((isTomorrow ? types_tomorrow : types_today).size() == 0) {
+            sb.append("\nThere is no menu for that day. :(");
+        } else {
+            for (MenuType menuType : (isTomorrow ? types_tomorrow : types_today)) {
+                if (menuType.getMenuType() != null) {
+                    sb.append("\n*").append(menuType.getMenuType());
 
-                String dishPrice = MenuPrice.getInstance().getMenuPrice(menuType.getMenuType());
+                    String dishPrice = MenuPrice.getInstance().getMenuPrice(menuType.getMenuType());
 
-                if (dishPrice != null) {
-                    sb.append(" » ").append(dishPrice).append(" €");
+                    if (dishPrice != null) {
+                        sb.append(" » ").append(dishPrice).append(" €");
+                    }
+
+                    sb.append("*\n");
+                } else {
+                    sb.append("\n\n");
                 }
 
-                sb.append("*\n");
-            } else {
-                sb.append("\n\n");
-            }
-
-            for (MenuItem item : menuType.getItems()) {
-                sb.append(item.getStyledText(withEmojis, allergicTo, eatingHabit));
+                for (MenuItem item : menuType.getItems()) {
+                    sb.append(item.getStyledText(withEmojis, allergicTo, eatingHabit));
+                }
             }
         }
+
 
         return sb.toString();
     }

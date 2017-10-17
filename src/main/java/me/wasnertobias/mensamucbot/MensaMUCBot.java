@@ -417,12 +417,14 @@ public class MensaMUCBot extends TelegramLongPollingBot {
     }
 
     boolean hasUserSubscribedWeekday(UserConfig userConfig, int canteenUrlId, int dayId) {
-        String[] subscriptions = userConfig.getUserConfig("subscriptions").split("/");
+        String subscriptions = userConfig.getUserConfig("subscriptions");
 
-        for (String subscription1 : subscriptions) {
-            String[] subscription = subscription1.split(",");
+        if (!subscriptions.isEmpty()) {
+            String[] splitSubscriptions = subscriptions.split("/");
 
-            if (subscription.length == 3) {
+            for (String subscription1 : splitSubscriptions) {
+                String[] subscription = subscription1.split(",");
+
                 int subscribedDayId = Integer.parseInt(subscription[1]);
                 int subscribedCanteenUrlId = Integer.parseInt(subscription[2]);
 
@@ -431,7 +433,30 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                 }
             }
         }
+
         return false;
+    }
+
+    String getUserSubscribedWeekdayString(UserConfig userConfig, int canteenUrlId, int dayId) {
+        String subscriptions = userConfig.getUserConfig("subscriptions");
+
+        if (!subscriptions.isEmpty()) {
+            String[] splitSubscriptions = subscriptions.split("/");
+
+            for (String subscription1 : splitSubscriptions) {
+                String[] subscription = subscription1.split(",");
+
+                int subscribedTimeId = Integer.parseInt(subscription[0]);
+                int subscribedDayId = Integer.parseInt(subscription[1]);
+                int subscribedCanteenUrlId = Integer.parseInt(subscription[2]);
+
+                if (subscribedDayId == dayId && subscribedCanteenUrlId == canteenUrlId) {
+                    return (subscribedTimeId / 4) + ":" + ((subscribedTimeId % 4) * 15) + "\n";
+                }
+            }
+        }
+
+        return "";
     }
 
     void addSubscription(UserConfig userConfig, int timeId, int dayId, int canteenUrlId) {
@@ -465,14 +490,14 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         ArrayList<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row = new KeyboardRow();
-        row.add((hasUserSubscribedWeekday(userConfig, canteenUrlId, Calendar.MONDAY) ? "✔\n" : "") + "Monday >");
-        row.add((hasUserSubscribedWeekday(userConfig, canteenUrlId, Calendar.TUESDAY) ? "✔\n" : "") + "Tuesday >");
-        row.add((hasUserSubscribedWeekday(userConfig, canteenUrlId, Calendar.WEDNESDAY) ? "✔\n" : "") + "Wednesday >");
+        row.add(getUserSubscribedWeekdayString(userConfig, canteenUrlId, Calendar.MONDAY) + "Monday >");
+        row.add(getUserSubscribedWeekdayString(userConfig, canteenUrlId, Calendar.TUESDAY) + "Tuesday >");
+        row.add(getUserSubscribedWeekdayString(userConfig, canteenUrlId, Calendar.WEDNESDAY) + "Wednesday >");
         rows.add(row);
 
         row = new KeyboardRow();
-        row.add((hasUserSubscribedWeekday(userConfig, canteenUrlId, Calendar.THURSDAY) ? "✔\n" : "") + "Thursday >");
-        row.add((hasUserSubscribedWeekday(userConfig, canteenUrlId, Calendar.FRIDAY) ? "✔\n" : "") + "Friday >");
+        row.add(getUserSubscribedWeekdayString(userConfig, canteenUrlId, Calendar.THURSDAY) + "Thursday >");
+        row.add(getUserSubscribedWeekdayString(userConfig, canteenUrlId, Calendar.FRIDAY) + "Friday >");
         rows.add(row);
 
         row = new KeyboardRow();
@@ -650,7 +675,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         ArrayList<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row = new KeyboardRow();
-        // TODO: Change static naming??
+        // TODO: Add additional flexible naming!
         row.add("Today >");
         row.add("Tomorrow >");
         rows.add(row);
