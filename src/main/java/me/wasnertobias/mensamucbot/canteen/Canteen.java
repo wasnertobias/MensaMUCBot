@@ -86,8 +86,6 @@ public class Canteen {
 
                 addMenuItem((isTomorrow ? types_tomorrow : types_today), menuItem);
             }
-        } else {
-            Main.notifyAdminUrgently("[Error] Could not find menu for " + calendarDay(calendarToBeScraped));
         }
     }
 

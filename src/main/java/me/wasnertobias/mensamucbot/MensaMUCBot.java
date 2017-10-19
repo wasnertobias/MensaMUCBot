@@ -698,6 +698,9 @@ public class MensaMUCBot extends TelegramLongPollingBot {
     }
 
     private void removeUserConfig(UserConfig userConfig) {
+        if (userConfig == null) {
+            return;
+        }
         userConfigs.remove(userConfig);
         saveUserConfigs();
         notifyAdmin("[Info] I lost a user! " + userConfigs.size() + " in total now. :(");
@@ -756,6 +759,10 @@ public class MensaMUCBot extends TelegramLongPollingBot {
 
                 @Override
                 public void onError(BotApiMethod<Message> botApiMethod, TelegramApiRequestException e) {
+                    if (e.getErrorCode() == 403) {
+                        removeUserConfig(getUserConfig(chatID));
+                        return;
+                    }
                     System.out.println("[Error] " + e);
                 }
 
