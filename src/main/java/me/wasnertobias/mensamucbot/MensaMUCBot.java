@@ -97,8 +97,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            System.out.println(update.getMessage().getChatId() + ": " + update.getMessage().getText());
-
             UserConfig userConfig = getUserConfig(update.getMessage().getChatId());
 
             if (userConfig == null) {
@@ -120,7 +118,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
             }
 
             if (update.getMessage().getText().equalsIgnoreCase("/help")) {
-                sendBareMessage(userConfig.getChatId(), "Use the keyboard to navigate through the menu. Type / in the chat to see which commands are available.");
+                sendBareMessage(userConfig.getChatId(), "Use the keyboard to navigate through the menu. Type / in the chat to see which commands are available. Found a bug? Send @wasnertobias a message.");
                 return;
             }
 
@@ -703,7 +701,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         }
         userConfigs.remove(userConfig);
         saveUserConfigs();
-        notifyAdmin("[Info] I lost a user! " + userConfigs.size() + " in total now. :(");
     }
 
     private UserConfig createUserConfig(long chatID) {
@@ -712,7 +709,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         if (userConfig == null) {
             userConfig = new UserConfig(chatID);
             userConfigs.add(userConfig);
-            notifyAdmin("[Info] I got a new user! " + userConfigs.size() + " in total now. :)");
             saveUserConfigs();
         }
 
