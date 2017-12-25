@@ -172,7 +172,7 @@ public class Canteen {
         sb.append("*\n");
 
         if ((isTomorrow ? types_tomorrow : types_today).size() == 0) {
-            sb.append("\nThere is no menu for that day. :(");
+            return null;
         } else {
             for (MenuType menuType : (isTomorrow ? types_tomorrow : types_today)) {
                 if (menuType.getMenuType() != null) {

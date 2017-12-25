@@ -215,7 +215,7 @@ public class Main {
                 return canteen.getStyledString(!emojisDisabled, allergies, eatingHabit, isTomorrow);
             }
         }
-        return "";
+        return null;
     }
 
     public static boolean isWeekday(Calendar calendar) {

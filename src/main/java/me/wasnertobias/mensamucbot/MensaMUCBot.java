@@ -168,14 +168,18 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                     case "today":
                         Canteen result = delegateToLocationMenu(userConfig, update.getMessage().getText(), (status.length > 1 ? status[1] : null));
                         if (result != null) {
-                            sendBareMessage(userConfig.getChatId(), result.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), false));
+                            if (!sendBareMessage(userConfig.getChatId(), result.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), false))) {
+                                sendBareMessage(userConfig.getChatId(), "Sorry, there is no menu available for that day!");
+                            }
                             navigateToMainMenu(userConfig);
                         }
                         return;
                     case "tomorrow":
                         Canteen result2 = delegateToLocationMenu(userConfig, update.getMessage().getText(), (status.length > 1 ? status[1] : null));
                         if (result2 != null) {
-                            sendBareMessage(userConfig.getChatId(), result2.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), true));
+                            if (!sendBareMessage(userConfig.getChatId(), result2.getStyledString(!areEmojisDisabled(userConfig), getAllergies(userConfig), getEatingHabit(userConfig), true))) {
+                                sendBareMessage(userConfig.getChatId(), "Sorry, there is no menu available for that day!");
+                            }
                             navigateToMainMenu(userConfig);
                         }
                         return;
@@ -730,8 +734,13 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         }
     }
 
-    void sendBareMessage(long chatID, String msg) {
+    boolean sendBareMessage(long chatID, String msg) {
+        if (msg == null) {
+            return false;
+        }
+
         sendBareMessage(chatID, msg, true, null);
+        return true;
     }
 
     void sendBareMessage(long chatID, String msg, boolean enableMarkdown, List<KeyboardRow> keyboardRows) {
@@ -862,10 +871,16 @@ public class MensaMUCBot extends TelegramLongPollingBot {
             Main.notifyAdminUrgently("[Error] Slack notification could not be sent, because slackSecret is null!");
         }
 
+        String slackText = Main.getSlackText();
+
+        if (slackText == null) {
+            return "[Error] SlackText was empty and not sent.";
+        }
+
         try {
             Connection connection = Jsoup.connect("https://hooks.slack.com/services/" + slackSecret)
                     .header("Content-type", "application/json")
-                    .requestBody("{\"text\":\"" + Main.getSlackText() + "\"}")
+                    .requestBody("{\"text\":\"" + slackText + "\"}")
                     .method(Connection.Method.POST);
             Connection.Response response = connection.execute();
 
