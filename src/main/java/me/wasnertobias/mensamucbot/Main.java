@@ -137,7 +137,7 @@ public class Main {
         scrapeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (isWeekday(Calendar.getInstance())) {
+                if (isNotSunday(Calendar.getInstance())) {
                     scrapeAll();
                     resetNotificationTimer();
                 }
@@ -221,6 +221,11 @@ public class Main {
     public static boolean isWeekday(Calendar calendar) {
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         return (dayOfWeek != Calendar.SUNDAY && dayOfWeek != Calendar.SATURDAY);
+    }
+
+    private static boolean isNotSunday(Calendar calendar) {
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        return (dayOfWeek != Calendar.SUNDAY);
     }
 
     static String processAdminInput(String string) {

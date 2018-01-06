@@ -37,8 +37,12 @@ public class Canteen {
     }
 
     public void scrapeNow() {
-        if (types_tomorrow != null && types_today != null) {
-            types_today.clear();
+        if (types_tomorrow != null) {
+            if (types_today == null) {
+                types_today = new ArrayList<>();
+            } else {
+                types_today.clear();
+            }
             types_today.addAll(types_tomorrow);
             types_tomorrow.clear();
             scrapeNow(true);

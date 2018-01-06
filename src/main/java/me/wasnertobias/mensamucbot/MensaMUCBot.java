@@ -735,7 +735,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
     }
 
     boolean sendBareMessage(long chatID, String msg) {
-        if (msg == null) {
+        if (msg == null || msg.length() == 0) {
             return false;
         }
 
