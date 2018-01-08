@@ -137,7 +137,7 @@ public class Main {
         scrapeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (isNotSunday(Calendar.getInstance())) {
+                if (shouldIScrapeToday(Calendar.getInstance())) {
                     scrapeAll();
                     resetNotificationTimer();
                 }
@@ -223,9 +223,9 @@ public class Main {
         return (dayOfWeek != Calendar.SUNDAY && dayOfWeek != Calendar.SATURDAY);
     }
 
-    private static boolean isNotSunday(Calendar calendar) {
+    private static boolean shouldIScrapeToday(Calendar calendar) {
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        return (dayOfWeek != Calendar.SUNDAY);
+        return (dayOfWeek != Calendar.SUNDAY && dayOfWeek != Calendar.MONDAY);
     }
 
     static String processAdminInput(String string) {
@@ -253,7 +253,7 @@ public class Main {
     private static void scrapeAll() {
         new Thread(() -> {
             for (Canteen canteen : canteens) {
-                canteen.scrapeNow();
+                canteen.scrapeNextDay();
 
                 try {
                     Thread.sleep(1000);

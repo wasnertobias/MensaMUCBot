@@ -36,7 +36,7 @@ public class Canteen {
         return urlId;
     }
 
-    public void scrapeNow() {
+    public void scrapeNextDay() {
         if (types_tomorrow != null) {
             if (types_today == null) {
                 types_today = new ArrayList<>();
@@ -45,7 +45,7 @@ public class Canteen {
             }
             types_today.addAll(types_tomorrow);
             types_tomorrow.clear();
-            scrapeNow(true);
+            scrapeWeb(true);
         } else {
             if (types_tomorrow == null) {
                 types_tomorrow = new ArrayList<>();
@@ -57,12 +57,12 @@ public class Canteen {
             } else {
                 types_today.clear();
             }
-            scrapeNow(false);
-            scrapeNow(true);
+            scrapeWeb(false);
+            scrapeWeb(true);
         }
     }
 
-    private void scrapeNow(boolean isTomorrow) {
+    private void scrapeWeb(boolean isTomorrow) {
         Calendar calendarToBeScraped = getCalendar(isTomorrow);
         String url = getURL(calendarToBeScraped);
         System.out.println("[Info] Scraping URL: " + url);
