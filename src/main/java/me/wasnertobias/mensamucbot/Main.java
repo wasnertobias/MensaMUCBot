@@ -34,7 +34,7 @@ public class Main {
         canteens.add(new Canteen(CAFE, "Adalbertstraße", 512));
         canteens.add(new Canteen(CAFE, "Akademie Weihenstephan", 526));
         canteens.add(new Canteen(CAFE, "Boltzmannstraße", 527));
-        canteens.add(new Canteen(CAFE, "in der Mensa Garching", 524));
+        canteens.add(new Canteen(CAFE, "Garching", 524));
         canteens.add(new Canteen(CAFE, "Karlstraße", 532));
         canteens.add(new Canteen(CAFE, "Pasing", 534));
 

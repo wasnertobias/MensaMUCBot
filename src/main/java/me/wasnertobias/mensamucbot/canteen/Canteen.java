@@ -43,20 +43,15 @@ public class Canteen {
             } else {
                 types_today.clear();
             }
+
             types_today.addAll(types_tomorrow);
             types_tomorrow.clear();
             scrapeWeb(true);
         } else {
-            if (types_tomorrow == null) {
-                types_tomorrow = new ArrayList<>();
-            } else {
-                types_tomorrow.clear();
-            }
-            if (types_today == null) {
-                types_today = new ArrayList<>();
-            } else {
+            if (types_today != null) {
                 types_today.clear();
             }
+
             scrapeWeb(false);
             scrapeWeb(true);
         }
@@ -146,6 +141,10 @@ public class Canteen {
     }
 
     private void addMenuItem(ArrayList<MenuType> types, MenuItem item) {
+        if (types == null) {
+            types = new ArrayList<>();
+        }
+
         for (MenuType menuType : types) {
             if (menuType.getMenuType() == null && item.getMenuType() == null) {
                 menuType.addMenuItem(item);
@@ -175,7 +174,7 @@ public class Canteen {
 
         sb.append("*\n");
 
-        if ((isTomorrow ? types_tomorrow : types_today).size() == 0) {
+        if ((isTomorrow ? types_tomorrow : types_today) == null || (isTomorrow ? types_tomorrow : types_today).size() == 0) {
             return null;
         } else {
             for (MenuType menuType : (isTomorrow ? types_tomorrow : types_today)) {
