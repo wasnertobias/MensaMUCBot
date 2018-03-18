@@ -139,6 +139,8 @@ public class Main {
             public void run() {
                 if (shouldIScrapeToday(Calendar.getInstance())) {
                     scrapeAll();
+                }
+                if (isWeekday(Calendar.getInstance())) {
                     resetNotificationTimer();
                 }
             }
