@@ -83,6 +83,13 @@ public class Canteen {
                     lastMenuTypeName = menuItem.getMenuType();
                 }
 
+                if ((isTomorrow ? types_tomorrow : types_today) == null) {
+                    if (isTomorrow) {
+                        types_tomorrow = new ArrayList<>();
+                    } else {
+                        types_today = new ArrayList<>();
+                    }
+                }
                 addMenuItem((isTomorrow ? types_tomorrow : types_today), menuItem);
             }
         }
@@ -141,10 +148,6 @@ public class Canteen {
     }
 
     private void addMenuItem(ArrayList<MenuType> types, MenuItem item) {
-        if (types == null) {
-            types = new ArrayList<>();
-        }
-
         for (MenuType menuType : types) {
             if (menuType.getMenuType() == null && item.getMenuType() == null) {
                 menuType.addMenuItem(item);
