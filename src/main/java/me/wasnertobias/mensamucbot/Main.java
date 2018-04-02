@@ -239,7 +239,7 @@ public class Main {
             return "[Info] Saved!";
         }
         if (string.toLowerCase().startsWith("/count")) {
-            return "[Info] Current count of users: " + mensaMUCBot.userConfigSize();
+            return "[Info] Current count of users: (" + mensaMUCBot.countActiveUserConfigs() + " / " + mensaMUCBot.countUserConfigs() + ")";
         }
         if (string.toLowerCase().startsWith("/slack")) {
             return mensaMUCBot.sendSlackNotification();

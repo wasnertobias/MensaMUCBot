@@ -695,8 +695,20 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         sendBareMessage(userConfig.getChatId(), "What do you want to do?", false, rows);
     }
 
-    int userConfigSize() {
+    int countUserConfigs() {
         return userConfigs.size();
+    }
+
+    int countActiveUserConfigs() {
+        int i = 0;
+
+        for (UserConfig config : userConfigs) {
+            if (!config.getUserConfig("subscriptions").isEmpty()) {
+                i++;
+            }
+        }
+
+        return i;
     }
 
     private void removeUserConfig(UserConfig userConfig) {
