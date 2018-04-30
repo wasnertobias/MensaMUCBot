@@ -48,7 +48,7 @@ public class MenuItem {
             }
 
             if (withEmojis) {
-                sb.append(EmojiMapping.getInstance().addEmojis(menuText));
+                sb.append(EmojiMapping.getInstance().appendEmojis(menuText));
             }
         } else {
             sb.append("*(").append(canNotEat).append(")*");

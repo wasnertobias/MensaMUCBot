@@ -2,11 +2,37 @@ package me.wasnertobias.mensamucbot;
 
 import com.vdurmont.emoji.EmojiParser;
 
+import java.io.*;
+
 public class EmojiMapping {
     private static EmojiMapping instance;
-    private static String[] emojiMapping = {"süßkartoffel", "sweet_potato", "orange", "tangerine", "keks", "cookie", "cookie", "cookie", "honig", "honey_pot", "arrabiata", "hot_pepper", "ente", "duck", "krokette", "potato", "sushi", "sushi", "garnele", "shrimp", "shrimp", "fried_shrimp", "fisch", "fish", "salat", "green_salad", "gurken", "cucumber", "erdbeeren", "strawberry", "reis", "rice", "suppe", "stew", "pommes", "fries", "kartoffel", "potato", "schoko", "chocolate_bar", "banane", "banana", "spaghetti", "spaghetti", "apfel", "apple", "birne", "pear", "pfirsich", "peach", "tomate", "tomato", "kirsch", "cherries", "käse", "cheese", "bier", "beer", "donut", "doughnut", "eier", "egg", "burger", "hamburger", "pizza", "pizza", "aubergine", "eggplant", "kiwi", "kiwifruit", "karotte", "carrot", "möhre", "carrot", "pfannkuchen", "pancakes", "mais", "corn", "ananas", "pineapple", "tortilla", "taco", "scharf", "hot_pepper", "chili", "hot_pepper", "erdnüssen", "peanuts", "erdnuss", "peanuts", "kuchen", "cake"};
+    private static String[] emojiMapping = {};
+    private File emojiMappingFile = null;
 
     private EmojiMapping() {
+        emojiMappingFile = new File("smile.txt");
+
+        if (!emojiMappingFile.exists()) {
+            try {
+                if (emojiMappingFile.createNewFile()) {
+                    System.out.println("[Info] Created new file smile.txt!");
+                } else {
+                    System.out.println("[Error] Failed to create new file smile.txt!");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(emojiMappingFile));
+            String line = br.readLine();
+            emojiMapping = line.split(", ");
+            System.out.println("[Info] Read " + emojiMapping.length/2 + " emojiMappings!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         for (int i = 1; i < emojiMapping.length; i += 2) {
             String emoji = ":" + emojiMapping[i] + ":";
             if (EmojiParser.parseToUnicode(emoji).equals(emoji)) {
@@ -22,7 +48,35 @@ public class EmojiMapping {
         return instance;
     }
 
-    public String addEmojis(String meal) {
+    public String addMapping(String search, String replace) {
+        search = search.toLowerCase();
+        replace = replace.toLowerCase();
+
+        if (EmojiParser.parseToUnicode(replace).equals(replace)) {
+            return "[Error] Invalid emoji-replace mapping!";
+        }
+
+        for (int i = 0; i < emojiMapping.length - 1; i += 2) {
+            if (search.equals(emojiMapping[i])) {
+                return "[Error] search already existing!";
+            }
+        }
+
+        String[] tmp = new String[emojiMapping.length + 2];
+
+        for (int i = 0; i < emojiMapping.length; i++) {
+            tmp[i] = emojiMapping[i];
+        }
+
+        tmp[emojiMapping.length] = search;
+        tmp[emojiMapping.length + 1] = replace;
+
+        emojiMapping = tmp;
+
+        return saveAllMappings();
+    }
+
+    public String appendEmojis(String meal) {
         StringBuilder sb = new StringBuilder();
         meal = meal.toLowerCase();
 
@@ -33,5 +87,28 @@ public class EmojiMapping {
         }
 
         return EmojiParser.parseToUnicode(sb.toString());
+    }
+
+    private String saveAllMappings() {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(emojiMappingFile));
+
+            StringBuilder sb = new StringBuilder();
+
+            if (emojiMapping.length != 0) {
+                sb.append(emojiMapping[0]);
+            }
+
+            for (int i = 1; i < emojiMapping.length; i++) {
+                sb.append(", ").append(emojiMapping[i]);
+            }
+
+            bufferedWriter.write(sb.toString());
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "[Error] while saving!";
+        }
+        return "";
     }
 }

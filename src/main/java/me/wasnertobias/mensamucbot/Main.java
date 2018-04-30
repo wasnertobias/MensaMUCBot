@@ -244,6 +244,15 @@ public class Main {
         if (string.toLowerCase().startsWith("/slack")) {
             return mensaMUCBot.sendSlackNotification();
         }
+        if (string.toLowerCase().startsWith("/smile")) {
+            String[] split = string.split(" ");
+
+            if (split.length != 3) {
+                return "[Error] Number of arguments other then expected! Usage: /smile search replace";
+            }
+
+            return EmojiMapping.getInstance().addMapping(split[1], split[2]);
+        }
         return "[Error] Say what?!";
     }
 
