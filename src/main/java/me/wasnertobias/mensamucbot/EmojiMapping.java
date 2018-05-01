@@ -34,7 +34,7 @@ public class EmojiMapping {
         }
 
         for (int i = 1; i < emojiMapping.length; i += 2) {
-            String emoji = ":" + emojiMapping[i] + ":";
+            String emoji = emojiMapping[i];
             if (EmojiParser.parseToUnicode(emoji).equals(emoji)) {
                 Main.notifyAdminUrgently("[Error] Emoji " + emoji + " is not working! :(");
             }
@@ -51,15 +51,16 @@ public class EmojiMapping {
     public String addMapping(String search, String replace) {
         search = search.toLowerCase();
         replace = replace.toLowerCase();
-
-        if (EmojiParser.parseToUnicode(replace).equals(replace)) {
-            return "[Error] Invalid emoji-replace mapping!";
-        }
+        String emoji = ":" + replace + ":";
 
         for (int i = 0; i < emojiMapping.length - 1; i += 2) {
             if (search.equals(emojiMapping[i])) {
                 return "[Error] search already existing!";
             }
+        }
+
+        if (EmojiParser.parseToUnicode(emoji).equals(emoji)) {
+            return "[Error] Invalid emoji-replace mapping!";
         }
 
         String[] tmp = new String[emojiMapping.length + 2];
@@ -69,7 +70,7 @@ public class EmojiMapping {
         }
 
         tmp[emojiMapping.length] = search;
-        tmp[emojiMapping.length + 1] = replace;
+        tmp[emojiMapping.length + 1] = emoji;
 
         emojiMapping = tmp;
 
@@ -82,7 +83,7 @@ public class EmojiMapping {
 
         for (int i = 0; i < emojiMapping.length - 1; i += 2) {
             if (meal.contains(emojiMapping[i])) {
-                sb.append(':').append(emojiMapping[i + 1]).append(':');
+                sb.append(EmojiParser.parseToUnicode(emojiMapping[i + 1]));
             }
         }
 
@@ -109,6 +110,6 @@ public class EmojiMapping {
             e.printStackTrace();
             return "[Error] while saving!";
         }
-        return "";
+        return "[Info] Successfully added and saved in file! :)";
     }
 }
