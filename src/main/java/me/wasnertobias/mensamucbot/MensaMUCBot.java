@@ -662,8 +662,6 @@ public class MensaMUCBot extends TelegramLongPollingBot {
         row.add((areEmojisDisabled(userConfig) ? "✘\n" : "✔\n") + "Highlight with Emojis >");
         rows.add(row);
 
-        // TODO: Add filtering instead of highlighting option
-
         row = new KeyboardRow();
         row.add("< Back");
         rows.add(row);
@@ -778,6 +776,7 @@ public class MensaMUCBot extends TelegramLongPollingBot {
                 public void onError(BotApiMethod<Message> botApiMethod, TelegramApiRequestException e) {
                     if (e.getErrorCode() == 403) {
                         removeUserConfig(getUserConfig(chatID));
+                        System.out.println("[Error] Someone who I wanted to notify blocked me. Deleted userConfig!");
                         return;
                     }
                     System.out.println("[Error] " + e);
