@@ -317,9 +317,10 @@ public class MensaMUCBot extends TelegramLongPollingBot {
             sendBareMessage(userConfig.getChatId(), "Simply click on a button to disable/enable a certain allergen (*scroll* through the buttons).\n\n*Notice: Filtering might not be 100% accurate! This software comes without any warranty of any kind!*");
         } else if (!reply.isEmpty()) {
             boolean containedSomething = false;
+            reply = reply.substring(2, reply.length() - 2);
 
             for (Allergen allergen : Allergen.values()) {
-                if (reply.contains(AllergenName.getInstance().getAllergenName(allergen))) {
+                if (reply.contentEquals(AllergenName.getInstance().getAllergenName(allergen))) {
                     if (allergies.contains(allergen)) {
                         removeAllergen(userConfig, allergen);
                         sendBareMessage(userConfig.getChatId(), "You *are not* allergic to " + AllergenName.getInstance().getAllergenName(allergen));
